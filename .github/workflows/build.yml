@@ -1,0 +1,28 @@
+name: Build Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          sh docker/build.sh
+      - name: Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          hostname: websockify-build-${{ github.run_id }}
+          tags: tag:ci
+      - name: Tag
+        run: docker tag novnc/websockify:latest ${{ vars.DOCKER_REGISTRY_URL }}/websockify:latest
+      - name: Login
+        run: docker login --username ${{ vars.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} ${{ vars.DOCKER_REGISTRY_URL }}
+      - name: Push
+        run: docker push ${{ vars.DOCKER_REGISTRY_URL }}/websockify:latest

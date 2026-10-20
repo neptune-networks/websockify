@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '47 5 * * *'
 
 jobs:
   build:
@@ -20,7 +22,7 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           hostname: websockify-build-${{ github.run_id }}
-          tags: tag:ci
+          tags: tag:actions
       - name: Tag
         run: docker tag novnc/websockify:latest ${{ vars.DOCKER_REGISTRY_URL }}/websockify:latest
       - name: Login

@@ -2,15 +2,9 @@
 
 """ Unit tests for Token plugins"""
 
-import sys
 import unittest
 from unittest.mock import patch, MagicMock
 from jwcrypto import jwt, jwk
-
-try:
-    import redis
-except ImportError:
-    redis = None
 
 from websockify.token_plugins import parse_source_args, ReadOnlyTokenFile, JWTTokenApi, TokenRedis
 
@@ -242,12 +236,11 @@ class JWSTokenTestCase(unittest.TestCase):
 
 class TokenRedisTestCase(unittest.TestCase):
     def setUp(self):
-        if redis is None:
-            patcher = patch.dict(sys.modules, {'redis': MagicMock()})
-            patcher.start()
-            self.addCleanup(patcher.stop)
+        patcher = patch('websockify.token_plugins.redis')
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_empty(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -259,7 +252,7 @@ class TokenRedisTestCase(unittest.TestCase):
         instance.get.assert_called_once_with('testhost')
         self.assertIsNone(result)
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_simple(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -273,7 +266,7 @@ class TokenRedisTestCase(unittest.TestCase):
         self.assertEqual(result[0], 'remote_host')
         self.assertEqual(result[1], 'remote_port')
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_json_token_with_spaces(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -287,7 +280,7 @@ class TokenRedisTestCase(unittest.TestCase):
         self.assertEqual(result[0], 'remote_host')
         self.assertEqual(result[1], 'remote_port')
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_text_token(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -301,7 +294,7 @@ class TokenRedisTestCase(unittest.TestCase):
         self.assertEqual(result[0], 'remote_host')
         self.assertEqual(result[1], 'remote_port')
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_text_token_with_spaces(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -315,7 +308,7 @@ class TokenRedisTestCase(unittest.TestCase):
         self.assertEqual(result[0], 'remote_host')
         self.assertEqual(result[1], 'remote_port')
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_invalid_token(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
 
@@ -327,7 +320,7 @@ class TokenRedisTestCase(unittest.TestCase):
         instance.get.assert_called_once_with('testhost')
         self.assertIsNone(result)
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_token_without_namespace(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234')
         token = 'testhost'
@@ -345,7 +338,7 @@ class TokenRedisTestCase(unittest.TestCase):
         self.assertEqual(result[0], 'remote_host')
         self.assertEqual(result[1], 'remote_port')
 
-    @patch('redis.Redis')
+    @patch('websockify.token_plugins.redis.Redis')
     def test_token_with_namespace(self, mock_redis):
         plugin = TokenRedis('127.0.0.1:1234:::namespace')
         token = 'testhost'

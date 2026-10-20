@@ -228,7 +228,7 @@ class WebSockifyRequestHandler(WebSocketRequestHandlerMixIn, SimpleHTTPRequestHa
         is_ssl = False
         try:
             client_addr = self.client_address[0]
-            is_ssl = self.client_address[2]
+            is_ssl = self.client_address[-1]
         except IndexError:
             pass
 
@@ -636,8 +636,7 @@ class WebSockifyServer():
         # If the address is like (host, port), we are extending it
         # with a flag indicating SSL. Not many other options
         # available...
-        if len(address) == 2:
-            address = (address[0], address[1], (retsock != sock))
+        address = address + ((retsock != sock),)
 
         self.RequestHandlerClass(retsock, address, self)
 

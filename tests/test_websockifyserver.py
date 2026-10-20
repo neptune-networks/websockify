@@ -247,7 +247,7 @@ class WebSockifyServerTestCase(unittest.TestCase):
             return ([sock], [], [])
 
         patch('select.select').start().side_effect = fake_select
-        self.assertEqual(server.do_handshake(sock, '127.0.0.1'), sock)
+        self.assertEqual(server.do_handshake(sock, ('127.0.0.1', 1234)), sock)
         self.assertTrue(FakeHandler.CALLED, True)
 
     def test_do_handshake_ssl(self):
@@ -344,7 +344,7 @@ class WebSockifyServerTestCase(unittest.TestCase):
 
         patch('select.select').start().side_effect = fake_select
         patch('ssl.create_default_context').start().side_effect = fake_create_default_context
-        server.do_handshake(sock, '127.0.0.1')
+        server.do_handshake(sock, ('127.0.0.1', 1234))
         self.assertEqual(fake_create_default_context.CIPHERS, test_ciphers)
 
     def test_do_handshake_ssl_sets_opions(self):
@@ -389,7 +389,7 @@ class WebSockifyServerTestCase(unittest.TestCase):
 
         patch('select.select').start().side_effect = fake_select
         patch('ssl.create_default_context').start().side_effect = fake_create_default_context
-        server.do_handshake(sock, '127.0.0.1')
+        server.do_handshake(sock, ('127.0.0.1', 1234))
         self.assertEqual(fake_create_default_context.OPTIONS, test_options)
 
     def test_fallback_sigchld_handler(self):
